@@ -36,14 +36,24 @@ app = FastAPI(
 
 # Get frontend URL from env or fallback to localhost
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+origins = []
+for url in frontend_url.split(","):
+    cleaned = url.strip().rstrip("/")
+    if cleaned:
+        origins.append(cleaned)
+
+# Always ensure localhost:3000 is allowed
+if "http://localhost:3000" not in origins:
+    origins.append("http://localhost:3000")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        frontend_url,
-    ],
+    allow_origins=origins,
+    allow_origin_regex=r"https://.*\.(devtunnels\.ms|ngrok-free\.app)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

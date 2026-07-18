@@ -33,7 +33,7 @@ def create_instant_meeting(
     code = generate_meeting_code()
     code_no_spaces = code.replace(" ", "")
 
-    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000").rstrip("/")
     meeting = Meeting(
         meeting_code=code,
         host_id=host_id,
@@ -62,7 +62,7 @@ def schedule_meeting(
     code = generate_meeting_code()
     code_no_spaces = code.replace(" ", "")
 
-    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000").rstrip("/")
     meeting = Meeting(
         meeting_code=code,
         host_id=host_id,

@@ -6,6 +6,7 @@ Seed script — populates the database with:
 """
 
 import random
+import os
 from datetime import datetime, timedelta
 from sqlmodel import Session, select
 from .models import User, Meeting, Participant
@@ -17,6 +18,8 @@ def generate_meeting_code() -> str:
     digits = ''.join([str(random.randint(0, 9)) for _ in range(11)])
     return f"{digits[:3]} {digits[3:7]} {digits[7:11]}"
 
+
+from .auth import hash_password
 
 def seed_database():
     """
@@ -36,6 +39,7 @@ def seed_database():
         default_user = User(
             name="Alex Morgan",
             email="alex.morgan@example.com",
+            password_hash=hash_password("password123"),
             avatar_color="#0B5CFF"
         )
         session.add(default_user)
@@ -67,6 +71,7 @@ def seed_database():
             },
         ]
 
+        frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000").rstrip("/")
         for meeting_data in upcoming_meetings:
             code = generate_meeting_code()
             code_no_spaces = code.replace(" ", "")
@@ -79,7 +84,7 @@ def seed_database():
                 scheduled_start=meeting_data["scheduled_start"],
                 duration_minutes=meeting_data["duration_minutes"],
                 status="scheduled",
-                invite_link=f"http://localhost:3000/meeting/{code_no_spaces}",
+                invite_link=f"{frontend_url}/meeting/{code_no_spaces}",
             )
             session.add(meeting)
             session.commit()
@@ -118,7 +123,7 @@ def seed_database():
                 scheduled_start=meeting_data["scheduled_start"],
                 duration_minutes=meeting_data["duration_minutes"],
                 status="ended",
-                invite_link=f"http://localhost:3000/meeting/{code_no_spaces}",
+                invite_link=f"{frontend_url}/meeting/{code_no_spaces}",
                 ended_at=ended_at,
             )
             session.add(meeting)

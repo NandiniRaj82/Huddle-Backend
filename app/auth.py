@@ -19,8 +19,7 @@ from .config import settings
 from .database import get_session
 from .models import User
 
-# ── Password hashing ──
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+import bcrypt
 
 # ── Bearer token extraction (optional — won't 403 if missing) ──
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -28,12 +27,16 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 def hash_password(password: str) -> str:
     """Hash a plaintext password using bcrypt."""
-    return pwd_context.hash(password)
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plaintext password against a bcrypt hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
+    except Exception:
+        return False
 
 
 def create_access_token(user_id: int, name: str, email: str) -> str:
