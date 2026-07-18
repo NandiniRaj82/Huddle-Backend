@@ -142,12 +142,12 @@ async def websocket_signaling(websocket: WebSocket, code: str, participant_id: s
 
             # ── Chat messages — broadcast to all (ephemeral, not persisted) ──
             if msg_type == "chat":
-                await broadcast_to_room(code, message, exclude_id=None)
+                await broadcast_to_room(code, message, exclude_id=participant_id)
                 continue
 
             # ── Reaction messages — broadcast to all ──
             if msg_type == "reaction":
-                await broadcast_to_room(code, message, exclude_id=None)
+                await broadcast_to_room(code, message, exclude_id=participant_id)
                 continue
 
             # ── Waiting room messages ──

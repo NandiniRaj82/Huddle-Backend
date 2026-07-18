@@ -34,10 +34,16 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ── CORS: allow the Next.js frontend to call this API ──
+# Get frontend URL from env or fallback to localhost
+import os
+frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        frontend_url,
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

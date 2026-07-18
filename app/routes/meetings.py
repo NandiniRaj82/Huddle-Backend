@@ -7,6 +7,7 @@ Meeting CRUD endpoints:
   GET    /api/meetings/{code}     — get a single meeting by code
 """
 
+import os
 from datetime import datetime
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
@@ -32,13 +33,14 @@ def create_instant_meeting(
     code = generate_meeting_code()
     code_no_spaces = code.replace(" ", "")
 
+    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
     meeting = Meeting(
         meeting_code=code,
         host_id=host_id,
         title="New Meeting",
         meeting_type="instant",
         status="active",
-        invite_link=f"http://localhost:3000/meeting/{code_no_spaces}",
+        invite_link=f"{frontend_url}/meeting/{code_no_spaces}",
     )
     session.add(meeting)
     session.commit()
@@ -60,6 +62,7 @@ def schedule_meeting(
     code = generate_meeting_code()
     code_no_spaces = code.replace(" ", "")
 
+    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
     meeting = Meeting(
         meeting_code=code,
         host_id=host_id,
@@ -69,7 +72,7 @@ def schedule_meeting(
         scheduled_start=data.scheduled_start,
         duration_minutes=data.duration_minutes,
         status="scheduled",
-        invite_link=f"http://localhost:3000/meeting/{code_no_spaces}",
+        invite_link=f"{frontend_url}/meeting/{code_no_spaces}",
     )
     session.add(meeting)
     session.commit()
