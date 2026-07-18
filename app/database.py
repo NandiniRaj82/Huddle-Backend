@@ -26,8 +26,9 @@ engine = create_engine(
 
 def create_db_and_tables():
     """Create all tables defined by SQLModel metadata. Safe to call multiple times."""
-    # Ensure the data directory exists
-    os.makedirs(DATABASE_DIR, exist_ok=True)
+    if is_sqlite:
+        DATABASE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+        os.makedirs(DATABASE_DIR, exist_ok=True)
     SQLModel.metadata.create_all(engine)
 
 

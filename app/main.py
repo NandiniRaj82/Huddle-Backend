@@ -28,8 +28,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Zoom Clone API",
-    description="Backend API for the Zoom Web App clone — meetings, participants, and WebRTC signaling.",
+    title="Huddle API",
+    description="Backend API for the Huddle Web App — meetings, participants, and WebRTC signaling.",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -70,4 +70,4 @@ app.include_router(ws_router)
 @app.get("/")
 def health_check():
     """Simple health check endpoint."""
-    return {"status": "ok", "service": "zoom-clone-api"}
+    return {"status": "ok", "service": "huddle-api"}
