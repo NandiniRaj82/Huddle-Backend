@@ -84,16 +84,21 @@ def schedule_meeting(
 # GET /api/meetings/upcoming
 # ──────────────────────────────────────────────
 @router.get("/upcoming", response_model=list[MeetingWithHost])
-def get_upcoming_meetings(session: Session = Depends(get_session)):
+def get_upcoming_meetings(
+    session: Session = Depends(get_session),
+    current_user: Optional[User] = Depends(get_optional_user),
+):
     """
     Return scheduled meetings where scheduled_start is in the future.
     Used for the 'Upcoming Meetings' section on the dashboard.
     """
+    user_id = current_user.id if current_user else 1
     now = datetime.utcnow()
     statement = (
         select(Meeting)
         .where(Meeting.status == "scheduled")
         .where(col(Meeting.scheduled_start) > now)
+        .where(Meeting.host_id == user_id)
         .order_by(col(Meeting.scheduled_start).asc())
     )
     meetings = session.exec(statement).all()
@@ -134,18 +139,22 @@ def get_upcoming_meetings(session: Session = Depends(get_session)):
 # GET /api/meetings/recent
 # ──────────────────────────────────────────────
 @router.get("/recent", response_model=list[MeetingWithHost])
-def get_recent_meetings(session: Session = Depends(get_session)):
+def get_recent_meetings(
+    session: Session = Depends(get_session),
+    current_user: Optional[User] = Depends(get_optional_user),
+):
     """
-    Return meetings that the default user has participated in and left.
+    Return meetings that the user has participated in and left.
     These have participant rows with left_at set.
     Used for the 'Recent Meetings' section on the dashboard.
     """
+    user_id = current_user.id if current_user else 1
     # Find meetings where the user has a participant record with left_at set
     statement = (
         select(Meeting)
         .join(Participant, Participant.meeting_id == Meeting.id)
         .where(col(Participant.left_at) != None)
-        .where(Participant.user_id == 1)  # Default user
+        .where(Participant.user_id == user_id)
         .order_by(col(Participant.left_at).desc())
     )
     meetings = session.exec(statement).all()
